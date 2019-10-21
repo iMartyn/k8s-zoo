@@ -1,4 +1,4 @@
-package spotifytwitchsings
+package k8szoo
 
 import (
 	"github.com/gorilla/mux"
@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"html"
 	"time"
-	"strconv"
 )
 
 func sendHTMLPreambleAndHead(writer http.ResponseWriter) {
@@ -19,7 +18,7 @@ func sendHTMLPreambleAndHead(writer http.ResponseWriter) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Check Spotify playlists against the twitch music database">
     <meta name="author" content="Martyn Ranyard">
-    <title>SpotifyTwitchSings</title>
+    <title>k8s-zoo</title>
 
     <!-- Bootstrap core CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
@@ -73,7 +72,7 @@ func sendBodyAndHeader(writer http.ResponseWriter) {
 <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
 <header class="masthead mb-auto">
 <div class="inner">
-  <h3 class="masthead-brand">SpotifyTwitchSings</h3>
+  <h3 class="masthead-brand">k8s-zoo</h3>
   <nav class="nav nav-masthead justify-content-center">
 	<a class="nav-link active" href="/">Home</a>
   </nav>
@@ -277,76 +276,7 @@ body {
 }
 
 func PlaylistHandler(response http.ResponseWriter, request *http.Request) {
-	type listItem struct {
-		TrackName     string
-		SpotifyArtist string
-		TwitchArtist  string
-		MatchKind     MatchType
-	}
-	listItems := []listItem{}
-	vars := mux.Vars(request)
-	if len(cachedSongList) <= 0 {
-		fmt.Println("No twitch sings cached yet, reading from disk or remote...")
-		CachedTwitchGetSongs(true)
-	} else {
-		CachedTwitchGetSongs(false)
-	}
-	playlistTracks, playlistInfo := SpotifyGetPlaylistTracks(vars["playlist"])
-	foundCount := 0
-	for _,spotifySong := range(playlistTracks) {
-		item := listItem{}
-		item.TrackName = spotifySong.Name
-		item.SpotifyArtist = SpotifyArtistsAsString(spotifySong.Artists)
-		artists := []string{}
-		for _, artistforname := range spotifySong.Artists {
-			artists = append(artists, artistforname.Name)
-		}
-		ret,twitchSong := SpotifyListContains(item.TrackName,artists)
-		item.MatchKind = ret
-		if ret != MatchNoMatch {
-			item.TwitchArtist = twitchSong.Artist
-			foundCount += 1
-		}
-		listItems = append(listItems, item)
-	}
-	sendHTMLPreambleAndHead(response)
-	sendBodyAndHeader(response)
-	fmt.Fprint(response,
-`<main role="main" class="inner cover">
-	<h1 class="cover-heading">Songs in your playlist "`+playlistInfo.Name+`": </h1>
-	<div align="left" style="width: 74%; display: inline-block; padding-left: 40px;">`+strconv.Itoa(playlistInfo.TrackCount)+` tracks, `+strconv.Itoa(foundCount)+` (possibly) in Twitch sings catalog of `+strconv.Itoa(len(cachedSongList))+`!</div>
-	<div align="right" style="width: 24%; display: inline-block;"><a href="#" id="showhidebutton" onclick="javascript:toggleUnfound()">Toggle unmatched songs</a></div>
-	<ul>
-`)
-	for _,item := range(listItems) {
-		matchTypeString := ""
-		twitchArtistString := ""
-		matchClass := ""
-		switch item.MatchKind {
-			case MatchNoMatch : 
-				matchTypeString = "[NO MATCH]"
-				matchClass = "match-nomatch"
-			case MatchTrackNameOnly : 
-				matchTypeString = "[MATCH SONG NAME]"
-				matchClass = "match-matchtrack"
-				twitchArtistString = " ("+item.TwitchArtist+")"
-			case MatchBothNameAndArtist : 
-				matchTypeString = "[MATCH SONG AND ARTIST]"
-				matchClass = "match-fullmatch"
-			case MatchNameOnlyFuzzy : 
-				matchTypeString = "[MATCH SONG NAME FUZZY]"
-				matchClass = "match-matchtrackfuzzt"
-				twitchArtistString = " ("+item.TwitchArtist+")"
-			case MatchBothFuzzy : 
-				matchTypeString = "[MATCH SONG AND ARTIST FUZZY]"
-				matchClass = "match-fullmatchfuzzy"
-		}
-		if item.MatchKind != MatchNoMatch {
-		}
-		fmt.Fprintf(response,"<li class=\""+matchClass+"\">%s - %s%s %s</li>",item.TrackName,item.SpotifyArtist,twitchArtistString,matchTypeString)
-	}
-	fmt.Fprint(response, `</ul></main>`)
-	sendAllTheRest(response)
+
 }
 
 func AlbumHandler(response http.ResponseWriter, request *http.Request) {

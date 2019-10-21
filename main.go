@@ -4,31 +4,28 @@ import (
 	"fmt"
 	"os"
 
-	spotifytwitchsings "github.com/iMartyn/spotifytwitchsings/src"
+	"github.com/iMartyn/k8szoo/src"
 	"github.com/spf13/cobra"
 )
 
 func main() {
-	var playlistid string
-	var albumid string
+	var animalname string
 
 	var rootCmd = &cobra.Command{
-		Use:   "spotifytwitchsings",
-		Short: "spotifytwitchsings is a awesome music downloader",
-		Long: `Spotifytwitchsings lets you find which songs are available on twitch sings
-Pass Either album ID or Playlist ID to start comparing`,
+		Use:   "k8szoo",
+		Short: "k8szoo is a quick templating web frontend",
+		Long: `k8szoo lets you template files (designed for yaml) with 
+animal names and sounds`,
 		Run: func(cmd *cobra.Command, args []string) {
-			if len(playlistid) > 0 && len(albumid) > 0 {
-				fmt.Println("Either album ID or playlist ID")
-				cmd.Help()
-			} else if len(albumid) > 0 {
-				// Download album with the given album ID
-				spotifytwitchsings.DownloadAlbum(albumid)
-			} else if len(playlistid) > 0 {
-				// Download playlist with the given ID
-				spotifytwitchsings.DownloadPlaylist(playlistid)
+			if (len(animalname) > 0) {
+				animalFound := k8szoo.FindAnimal(animalname)
+				if animalFound.AnimalName == "" {
+					fmt.Printf("I don't know what sound a %s makes.\n", animalname)
+				} else {
+					fmt.Printf("The %s %s\n", animalFound.AnimalName, animalFound.AnimalSound)
+				}
 			} else {
-				fmt.Println("Enter valid input.")
+				fmt.Println("Enter valid input. Hint, there isn't one!")
 				cmd.Help()
 			}
 		},
@@ -38,13 +35,11 @@ Pass Either album ID or Playlist ID to start comparing`,
 		Short: "Serve http requests",
 		Long: "Run the webserver to serve http requests",
 		Run: func(cmd *cobra.Command, args []string) {
-			spotifytwitchsings.HandleHTTP()
+			k8szoo.HandleHTTP()
 		},
 	}
 	
-
-	rootCmd.Flags().StringVarP(&playlistid, "playlistid", "p", "", "Album ID found on spotify")
-	rootCmd.Flags().StringVarP(&albumid, "albumid", "a", "", "Album ID found on spotify")
+	rootCmd.Flags().StringVarP(&animalname, "animalname", "p", "", "Animal name")
 	rootCmd.AddCommand(serveCmd)
 
 	if err := rootCmd.Execute(); err != nil {
