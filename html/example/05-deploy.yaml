@@ -19,7 +19,14 @@ spec:
       - args:
         - /app/animal
         - serve
-        - "-p{{.AnimalName}}"
-        image: imartyn/animal:v0.0.1
+        - "-p {{ .AnimalName }}"
+        image: imartyn/animal:v0.0.3
         name: animal
         workingDir: /app
+        volumeMounts:
+        - name: more-animals
+          mountPath: /app/etc/
+      volumes:
+      - name: more-animals
+        configMap:
+          name: extra-animals

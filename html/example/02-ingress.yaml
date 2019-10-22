@@ -5,6 +5,7 @@ metadata:
     app: animal
   annotations:
     certmanager.k8s.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
   name: animal
   namespace: {{ .AnimalName | ToLower }}
 spec:
@@ -15,7 +16,7 @@ spec:
       - backend:
           serviceName: animal
           servicePort: 80
-        path: /
+        path: /{{ .AnimalName | ToLower }}/(.*)
   tls:
   - hosts:
     - animals.ing.martyn.berlin
