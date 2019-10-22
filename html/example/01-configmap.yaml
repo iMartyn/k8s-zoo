@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: extra-animals
+  namespace: {{ .AnimalName | ToLower }}
+data:
+  animals.json: "[\r\n    {\r\n        \"AnimalName\":\"Phoenix\", \r\n        \"AnimalSound\":\"Smoulders\",\r\n
+    \       \"PictureURL\":\"https://wallpaper.wiki/wp-content/uploads/2017/05/wallpaper.wiki-Phoenix-Bird-Photos-PIC-WPD001345.jpg\"\r\n
+    \   }\r\n]"

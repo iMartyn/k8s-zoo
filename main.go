@@ -17,7 +17,7 @@ func main() {
 		Long: `k8szoo lets you template files (designed for yaml) with 
 animal names and sounds`,
 		Run: func(cmd *cobra.Command, args []string) {
-			if (len(animalname) > 0) {
+			if len(animalname) > 0 {
 				animalFound := k8szoo.FindAnimal(animalname)
 				if animalFound.AnimalName == "" {
 					fmt.Printf("I don't know what sound a %s makes.\n", animalname)
@@ -31,14 +31,14 @@ animal names and sounds`,
 		},
 	}
 	var serveCmd = &cobra.Command{
-		Use: "serve",
+		Use:   "serve",
 		Short: "Serve http requests",
-		Long: "Run the webserver to serve http requests",
+		Long:  "Run the webserver to serve http requests",
 		Run: func(cmd *cobra.Command, args []string) {
 			k8szoo.HandleHTTP()
 		},
 	}
-	
+
 	rootCmd.Flags().StringVarP(&animalname, "animalname", "p", "", "Animal name")
 	rootCmd.AddCommand(serveCmd)
 

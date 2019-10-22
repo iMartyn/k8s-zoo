@@ -1,0 +1,98 @@
+<html>
+        <!doctype html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+            <meta name="description" content="Templates files for the workshop">
+            <meta name="author" content="Martyn Ranyard">
+            <title>The k8s zoo</title>
+        
+            <!-- Bootstrap core CSS -->
+            <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+            <!-- Custom styles for this template -->
+            <link href="/cover.css" rel="stylesheet">
+        
+            <style>
+              .bd-placeholder-img {
+                font-size: 1.125rem;
+                text-anchor: middle;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+              }
+        
+              @media (min-width: 768px) {
+                .bd-placeholder-img-lg {
+                  font-size: 3.5rem;
+                }
+                    }
+                    
+                    li.match-nomatch{
+                        background-color: #1e2122;
+                    }
+                    li.match-matchtrack{
+                        background-color: #E9B000;
+                    }
+                    li.match-fullmatch{
+                        background-color: #008F95;
+                    }
+                    li.match-matchtrackfuzzt{
+                        background-color: darkgray;
+                    }
+                    li.match-fullmatchfuzzy{
+                        background-color: darkgray;
+                    }
+                    a{
+                        text-decoration-line: underline;
+                    }
+        
+            </style>
+          </head>
+          <body class="text-center">
+                <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+                <header class="masthead mb-auto">
+                <div class="inner">
+                  <h3 class="masthead-brand">k8s-zoo</h3>
+                  <nav class="nav nav-masthead justify-content-center">
+                    <a class="nav-link active" href="/">Home</a>
+                  </nav>
+                </div>
+                </header>
+                <main role="main" class="inner cover">
+                        <h1 class="cover-heading">Your animal is {{.Animal.AnimalName}}</h1>
+                        <p>The {{.Animal.AnimalName}} {{.Animal.AnimalSound}}</p>
+                        <h2>Here are the files you may need : </h2>
+                        <ul>
+                            <li><a href="example/kubeconfig">A kubeconfig file</a></li>
+                            {{range .Templates}}
+                            <li><a href="example/{{.}}">{{.}}</a></li>
+                            {{end}}
+                        </ul>
+                        <p>If you're unhappy with your animal, click <button onclick="javascript:releaseAnimal()">RELEASE</button> to be assigned a new one.</p> 
+                        <p>There are {{.AvailCount}} animals remaining of a total {{.TotalCount}}</p>
+                </main>
+        <footer class="mastfoot mt-auto">
+                <div class="inner">
+                  <p>Cover template for <a href="https://getbootstrap.com/">Bootstrap</a>, by <a href="https://twitter.com/mdo">@mdo</a>.</p>
+                </div>
+                </footer>
+                </div>
+                <script>
+                function releaseAnimal() {
+                    var url = document.createElement('a');
+                    url.setAttribute("href", window.location.href);
+                    if ((url.port != 80) && (url.port != 443)) {
+                        customPort = ":"+url.port
+                    } else {
+                        customPort = ""
+                    }
+                    var destination = url.protocol + "//" + url.hostname + customPort + "/release"
+                    window.location.href = destination
+                }
+                </script>
+                </body>
+                </html>
+    </body>
+</html>

@@ -1,0 +1,108 @@
+      <html>
+        <!doctype html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+            <meta name="description" content="Templates files for the workshop">
+            <meta name="author" content="Martyn Ranyard">
+            <title>The k8s zoo</title>
+        
+            <!-- Bootstrap core CSS -->
+            <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+            <!-- Custom styles for this template -->
+            <link href="/cover.css" rel="stylesheet">
+        
+            <style>
+              .bd-placeholder-img {
+                font-size: 1.125rem;
+                text-anchor: middle;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+              }
+        
+              @media (min-width: 768px) {
+                .bd-placeholder-img-lg {
+                  font-size: 3.5rem;
+                }
+                    }
+                    
+                    li.match-nomatch{
+                        background-color: #1e2122;
+                    }
+                    li.match-matchtrack{
+                        background-color: #E9B000;
+                    }
+                    li.match-fullmatch{
+                        background-color: #008F95;
+                    }
+                    li.match-matchtrackfuzzt{
+                        background-color: darkgray;
+                    }
+                    li.match-fullmatchfuzzy{
+                        background-color: darkgray;
+                    }
+                    a{
+                        text-decoration-line: underline;
+                    }
+        
+            </style>
+          </head>
+          <body class="text-center">
+                <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+                <header class="masthead mb-auto">
+                <div class="inner">
+                  <h3 class="masthead-brand">k8s-zoo</h3>
+                  <nav class="nav nav-masthead justify-content-center">
+                    <a class="nav-link active" href="/">Home</a>
+                  </nav>
+                </div>
+                </header>
+                <main role="main" class="inner cover">
+                        <h1 class="cover-heading">Ooops!</h1>
+                        <p>It seems you've gone somewhere you shouldn't!  404 NOT FOUND!</p>
+                        <p/>
+                        <p>This can happen if you enter the spotify id wrong and search, go back and check it!</p>
+                            <p class="lead">Spotify IDs look like this : 37i9dQZF1DX4UtSsGT1Sbe - 22 characters and can be got by clicking share and "Copy (Playlist|Album) Link".</p>
+                            <p>Shameless self-promotion : Follow me on twitch - <a href="https://www.twitch.tv/iMartynOnTwitch">iMartynOnTwitch</a>, oddly enough, I do a lot of twitchsings!</p>
+                      </main>
+        <footer class="mastfoot mt-auto">
+                <div class="inner">
+                  <p>Cover template for <a href="https://getbootstrap.com/">Bootstrap</a>, by <a href="https://twitter.com/mdo">@mdo</a>.</p>
+                </div>
+                </footer>
+                </div>
+                <script>
+                function directToResults() {
+                    var url = document.createElement('a');
+                    url.setAttribute("href", window.location.href);
+                    if ((url.port != 80) && (url.port != 443)) {
+                        customPort = ":"+url.port
+                    } else {
+                        customPort = ""
+                    }
+                    var destination = url.protocol + "//" + url.hostname + customPort + "/" + document.getElementById("mode").value + "/" + document.getElementById("spotifyid").value
+                    window.location.href = destination
+                }
+                
+                function toggleUnfound() {
+                    var unmatched = document.getElementsByClassName('match-nomatch'), i;
+                    if (document.getElementById("showhidebutton").getAttribute("tracksHidden") != "true") {
+                        document.getElementById("showhidebutton").setAttribute("tracksHidden","true")
+                        for (i = 0; i < unmatched.length; i += 1) {
+                                unmatched[i].style.display = 'none';
+                        }
+                    } else {
+                        document.getElementById("showhidebutton").setAttribute("tracksHidden","false")
+                        for (i = 0; i < unmatched.length; i += 1) {
+                                unmatched[i].style.display = 'list-item';
+                        }
+                    }
+                }
+                </script>
+                </body>
+                </html>
+    </body>
+</html>

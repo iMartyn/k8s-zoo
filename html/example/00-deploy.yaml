@@ -1,0 +1,24 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: animal
+  name: animal
+  namespace: {{ .AnimalName | ToLower }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: animal
+  template:
+    metadata:
+      labels:
+        app: animal
+    spec:
+      containers:
+      - args:
+        - /app/animal
+        - serve
+        - -p {{.AnimalName}}
+        image: imartyn/animal:v0.0.1
+        name: animal

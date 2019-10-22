@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  labels:
+    app: animal
+  annotations:
+    certmanager.k8s.io/cluster-issuer: letsencrypt
+  name: animal
+  namespace: {{ .AnimalName | ToLower }}
+spec:
+  rules:
+  - host: animals.ing.martyn.berlin
+    http:
+      paths:
+      - backend:
+          serviceName: animal
+          servicePort: 80
+        path: /
+  tls:
+  - hosts:
+    - animals.ing.martyn.berlin
+    secretName: animal-cert

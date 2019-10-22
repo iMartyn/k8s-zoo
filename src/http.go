@@ -1,304 +1,191 @@
 package k8szoo
 
 import (
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
+
+	"errors"
 	"fmt"
+	"html/template"
 	"net/http"
-	"html"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
-func sendHTMLPreambleAndHead(writer http.ResponseWriter) {
-	writer.Header().Add("Content-Type","text/html")
-	fmt.Fprint(writer,
-`<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Check Spotify playlists against the twitch music database">
-    <meta name="author" content="Martyn Ranyard">
-    <title>k8s-zoo</title>
+//var store = sessions.NewCookieStore(os.Getenv("SESSION_KEY"))
 
-    <!-- Bootstrap core CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-    <!-- Custom styles for this template -->
-    <link href="/cover.css" rel="stylesheet">
+var store = sessions.NewCookieStore([]byte("GO_SESS"))
 
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-			}
-			
-			li.match-nomatch{
-				background-color: #1e2122;
-			}
-			li.match-matchtrack{
-				background-color: #E9B000;
-			}
-			li.match-fullmatch{
-				background-color: #008F95;
-			}
-			li.match-matchtrackfuzzt{
-				background-color: darkgray;
-			}
-			li.match-fullmatchfuzzy{
-				background-color: darkgray;
-			}
-			a{
-				text-decoration-line: underline;
-			}
-
-    </style>
-  </head>
-  `);
-}
-
-func sendBodyAndHeader(writer http.ResponseWriter) {
-	writer.Header().Add("Content-Type","text/html")
-	fmt.Fprint(writer,
-`<body class="text-center">
-<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-<header class="masthead mb-auto">
-<div class="inner">
-  <h3 class="masthead-brand">k8s-zoo</h3>
-  <nav class="nav nav-masthead justify-content-center">
-	<a class="nav-link active" href="/">Home</a>
-  </nav>
-</div>
-</header>
-  `);
-}
-
-func sendAllTheRest(writer http.ResponseWriter) {
-	writer.Header().Add("Content-Type","text/html")
-	fmt.Fprint(writer,
-`<footer class="mastfoot mt-auto">
-<div class="inner">
-  <p>Cover template for <a href="https://getbootstrap.com/">Bootstrap</a>, by <a href="https://twitter.com/mdo">@mdo</a>.</p>
-</div>
-</footer>
-</div>
-<script>
-function directToResults() {
-	var url = document.createElement('a');
-	url.setAttribute("href", window.location.href);
-	if ((url.port != 80) && (url.port != 443)) {
-		customPort = ":"+url.port
-	} else {
-		customPort = ""
-	}
-	var destination = url.protocol + "//" + url.hostname + customPort + "/" + document.getElementById("mode").value + "/" + document.getElementById("spotifyid").value
-	window.location.href = destination
-}
-
-function toggleUnfound() {
-	var unmatched = document.getElementsByClassName('match-nomatch'), i;
-	if (document.getElementById("showhidebutton").getAttribute("tracksHidden") != "true") {
-		document.getElementById("showhidebutton").setAttribute("tracksHidden","true")
-		for (i = 0; i < unmatched.length; i += 1) {
-				unmatched[i].style.display = 'none';
-		}
-	} else {
-		document.getElementById("showhidebutton").setAttribute("tracksHidden","false")
-		for (i = 0; i < unmatched.length; i += 1) {
-				unmatched[i].style.display = 'list-item';
-		}
-	}
-}
-</script>
-</body>
-</html>
-  `);
-}
-
-func HomeHandler(response http.ResponseWriter, request *http.Request) {
-	sendHTMLPreambleAndHead(response)
-	sendBodyAndHeader(response)
-	fmt.Fprint(response,
-`  <main role="main" class="inner cover">
-	<h1 class="cover-heading">Gimme your ids!</h1>
-	<label for="spotifyid">ID of playlist or album :&nbsp;</label><input type="text" name="spotifyid" id="spotifyid">
-	<select name="mode" id="mode">
-	  <option value="playlist">Search playlist for twitch sings songs</option>
-	  <option value="album">Search album for twitch sings songs</option>
-	</select>
-	<p/>
-	<p class="lead">
-      <a href="#" class="btn btn-lg btn-secondary" onClick="javascript:directToResults()">Search</a>
-    </p>
-    <p class="lead">Spotify IDs look like this : 37i9dQZF1DX4UtSsGT1Sbe - 22 characters and can be got by clicking share and "Copy (Playlist|Album) Link".</p>
-		<p>Shameless self-promotion : Follow me on twitch - <a href="https://www.twitch.tv/iMartynOnTwitch">iMartynOnTwitch</a>, oddly enough, I do a lot of twitchsings!</p>
-  </main>
-  `)
-  sendAllTheRest(response)
+func HealthHandler(response http.ResponseWriter, request *http.Request) {
+	response.Header().Add("Content-type", "text/plain")
+	fmt.Fprint(response, "I'm okay jack!")
 }
 
 func NotFoundHandler(response http.ResponseWriter, request *http.Request) {
-	response.WriteHeader(404)
-	sendHTMLPreambleAndHead(response)
-	sendBodyAndHeader(response)
-	fmt.Fprintf(response,
-`<main role="main" class="inner cover">
-	<h1 class="cover-heading">Ooops!</h1>
-	<p>It seems you've gone somewhere you shouldn't!  404 NOT FOUND!</p>
-	<p/>
-	<p>This can happen if you enter the spotify id wrong and search, go back and check it!</p>
-		<p class="lead">Spotify IDs look like this : 37i9dQZF1DX4UtSsGT1Sbe - 22 characters and can be got by clicking share and "Copy (Playlist|Album) Link".</p>
-		<p>Shameless self-promotion : Follow me on twitch - <a href="https://www.twitch.tv/iMartynOnTwitch">iMartynOnTwitch</a>, oddly enough, I do a lot of twitchsings!</p>
-  </main>
-`)
-	sendAllTheRest(response)
+	response.Header().Add("X-Template-File", "html"+request.URL.Path)
+	tmpl := template.Must(template.ParseFiles("html/404.html"))
+	tmpl.Execute(response, nil)
 }
 
 func CSSHandler(response http.ResponseWriter, request *http.Request) {
-	response.Header().Add("Content-type","text/css")
-	fmt.Fprint(response,
-`
-/*
-* Globals
-*/
-
-/* Links */
-a,
-a:focus,
-a:hover {
- color: #fff;
+	response.Header().Add("Content-type", "text/css")
+	tmpl := template.Must(template.ParseFiles("html/cover.css"))
+	tmpl.Execute(response, nil)
 }
 
-/* Custom default button */
-.btn-secondary,
-.btn-secondary:hover,
-.btn-secondary:focus {
- color: #333;
- text-shadow: none; /* Prevent inheritance from body */
- background-color: #fff;
- border: .05rem solid #fff;
+func getAnimalFromSession(response http.ResponseWriter, request *http.Request) (int, error) {
+	session, err := store.Get(request, "session-name")
+	if err != nil {
+		return -1, err
+	}
+	var animalID int
+
+	if session.Values["chosenAnimal"] == nil {
+		animalID, _ = ReserveRandomAnimal()
+		//name := Animals[animalID].AnimalName
+		fmt.Printf("[Existing session] Reserving %s (%d) for %s\n", "something", animalID, session.ID)
+		session.Values["chosenAnimal"] = animalID
+	} else {
+		sessionAnimalID := session.Values["chosenAnimal"]
+		var ok bool
+		if animalID, ok = sessionAnimalID.(int); !ok {
+			return -1, errors.New("Conversion error")
+		}
+		if IsAnimalReserved(Animals[animalID].AnimalName) == false {
+			fmt.Printf("[New session] Reserving %s (%d) for %s\n", Animals[animalID].AnimalName, animalID, session.ID)
+			err = ReserveAnimalByName(Animals[animalID].AnimalName)
+			if err != nil {
+				animalID, _ = ReserveRandomAnimal()
+				session.Values["chosenAnimal"] = animalID
+			}
+		} else {
+			fmt.Printf("Session %s has %s (%d) reserved.\n", session.ID, Animals[animalID].AnimalName, animalID)
+		}
+		return animalID, nil
+	}
+	err = session.Save(request, response)
+	if err != nil {
+		return -1, err
+	}
+	return animalID, nil
 }
 
-
-/*
-* Base structure
-*/
-
-html,
-body {
- height: 100%;
- background-color: #333;
+func RandomAnimalHandler(response http.ResponseWriter, request *http.Request) {
+	type TemplateData struct {
+		Animal     AnimalData
+		Templates  []string
+		TotalCount int
+		AvailCount int
+	}
+	animalID, err := getAnimalFromSession(response, request)
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	tmpl := template.Must(template.ParseFiles(filepath.FromSlash("html/index.html")))
+	animal := Animals[animalID]
+	templates, err := filepath.Glob(filepath.FromSlash("./html/example/*.yaml"))
+	if err != nil {
+		templates = []string{}
+	}
+	for i, _ := range templates {
+		thistemplate := strings.Split(templates[i], string(os.PathSeparator))
+		templates[i] = thistemplate[len(thistemplate)-1]
+	}
+	data := TemplateData{
+		Animal:     animal,
+		Templates:  templates,
+		TotalCount: len(Animals),
+		AvailCount: len(AvailableAnimals),
+	}
+	tmpl.Execute(response, data)
 }
 
-body {
- display: -ms-flexbox;
- display: flex;
- color: #fff;
- text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
- box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+func TemplateHandler(response http.ResponseWriter, request *http.Request) {
+	animalID, err := getAnimalFromSession(response, request)
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	response.Header().Add("X-Template-File", "html"+request.URL.Path)
+
+	// tmpl, err := template.New("html"+request.URL.Path).Funcs(template.FuncMap{
+	// 	"ToUpper": strings.ToUpper,
+	// 	"ToLower": strings.ToLower,
+	// }).ParseFiles("html"+request.URL.Path)
+	_ = strings.ToLower("Hello")
+	if strings.Index(request.URL.Path, "/") < 0 {
+		http.Error(response, "No slashes wat - "+request.URL.Path, http.StatusInternalServerError)
+		return
+	}
+
+	basenameSlice := strings.Split(request.URL.Path, "/")
+	basename := basenameSlice[len(basenameSlice)-1]
+	//fmt.Fprintf(response, "%q", basenameSlice)
+	tmpl, err := template.New(basename).Funcs(template.FuncMap{
+		"ToUpper": strings.ToUpper,
+		"ToLower": strings.ToLower,
+	}).ParseFiles("html" + request.URL.Path)
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusInternalServerError)
+		return
+		// NotFoundHandler(response, request)
+		// return
+	}
+	err = tmpl.Execute(response, Animals[animalID])
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
-.cover-container {
- max-width: 142em;
-}
-
-
-/*
-* Header
-*/
-.masthead {
- margin-bottom: 2rem;
-}
-
-.masthead-brand {
- margin-bottom: 0;
-}
-
-.nav-masthead .nav-link {
- padding: .25rem 0;
- font-weight: 700;
- color: rgba(255, 255, 255, .5);
- background-color: transparent;
- border-bottom: .25rem solid transparent;
-}
-
-.nav-masthead .nav-link:hover,
-.nav-masthead .nav-link:focus {
- border-bottom-color: rgba(255, 255, 255, .25);
-}
-
-.nav-masthead .nav-link + .nav-link {
- margin-left: 1rem;
-}
-
-.nav-masthead .active {
- color: #fff;
- border-bottom-color: #fff;
-}
-
-@media (min-width: 48em) {
- .masthead-brand {
-   float: left;
- }
- .nav-masthead {
-   float: right;
- }
-}
-
-
-/*
-* Cover
-*/
-.cover {
- padding: 0 1.5rem;
-}
-.cover .btn-lg {
- padding: .75rem 1.25rem;
- font-weight: 700;
-}
-
-
-/*
-* Footer
-*/
-.mastfoot {
- color: rgba(255, 255, 255, .5);
-}
-`)
-}
-
-func PlaylistHandler(response http.ResponseWriter, request *http.Request) {
-
-}
-
-func AlbumHandler(response http.ResponseWriter, request *http.Request) {
-	fmt.Fprintf(response, "Hello, %q", html.EscapeString(request.URL.Path))
+func ReleaseHandler(response http.ResponseWriter, request *http.Request) {
+	session, err := store.Get(request, "session-name")
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	animalID, err := getAnimalFromSession(response, request)
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	animal := Animals[animalID]
+	err = ReleaseAnimalByName(animal.AnimalName)
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	session.Values["chosenAnimal"] = nil
+	err = session.Save(request, response)
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(response, request, "/", http.StatusSeeOther)
+	return
 }
 
 func HandleHTTP() {
 	r := mux.NewRouter()
+	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
 	r.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
-	r.HandleFunc("/", HomeHandler)
+	r.HandleFunc("/", RandomAnimalHandler)
+	r.HandleFunc("/healthz", HealthHandler)
+	r.HandleFunc("/release", ReleaseHandler)
+	r.HandleFunc("/example/{.*}", TemplateHandler)
 	r.HandleFunc("/cover.css", CSSHandler)
-	r.HandleFunc(`/playlist/{playlist:[0-9a-zA-Z]{22}}`, PlaylistHandler)
-	r.HandleFunc(`/playlist/spotify:playlist:{playlist:[0-9a-zA-Z]{22}}`, PlaylistHandler)
-	r.HandleFunc(`/playlist/https://open.spotify.com/playlist/{playlist:[0-9a-zA-Z]{22}}?{.*}`, PlaylistHandler)
-	r.HandleFunc("/album/{album:[0-9a-zA-Z]{22}}", AlbumHandler)
 	http.Handle("/", r)
-	srv := &http.Server {
-		Handler: r,
-		Addr: "0.0.0.0:5353",
-        WriteTimeout: 15 * time.Second,
-        ReadTimeout:  15 * time.Second,
+	srv := &http.Server{
+		Handler:      loggedRouter,
+		Addr:         "0.0.0.0:5353",
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
 	}
+	fmt.Println("Listening on 0.0.0.0:5353")
+	copy(AvailableAnimals, Animals)
 	srv.ListenAndServe()
 }
-
