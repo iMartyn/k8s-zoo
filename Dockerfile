@@ -11,4 +11,5 @@ RUN cd /go/src/github.com/iMartyn/k8szoo/; CGO_ENABLED=0 GOOS=linux go build -a 
 FROM scratch
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /go/src/github.com/iMartyn/k8szoo/k8szoo /app/
+COPY html /app/html
 CMD ["/app/k8szoo","serve"]
