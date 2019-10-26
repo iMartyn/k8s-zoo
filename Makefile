@@ -15,12 +15,9 @@ all: deps test $(BINARY)
 deps:
 	echo '$(GOPATH)'
 	go get github.com/spf13/cobra/cobra
-	go get github.com/frankban/quicktest
-	go get github.com/gosuri/uiprogress
-	go get github.com/chrisvdg/spotify
-	sh -c 'cd $(GOPATH)/src/github.com/chrisvdg/spotify && git checkout all_pages && git pull'
 	go get github.com/gorilla/mux
-	go get google.golang.org/api/googleapi/transport
+	go get github.com/gorilla/handlers
+	go get github.com/gorilla/sessions
 
 $(GOMETALINTER):
 	go get -u github.com/alecthomas/gometalinter
