@@ -26,5 +26,5 @@ spec:
         path: /(.*)
   tls:
   - hosts:
-    - animals.ing.martyn.berlin
+    - animals.oss.martyn.berlin
     secretName: animal-cert
