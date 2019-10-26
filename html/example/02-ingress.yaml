@@ -10,13 +10,20 @@ metadata:
   namespace: {{ .AnimalName | ToLower }}
 spec:
   rules:
-  - host: animals.ing.martyn.berlin
+  - host: animals.oss.martyn.berlin
     http:
       paths:
       - backend:
           serviceName: animal
           servicePort: 80
         path: /{{ .AnimalName | ToLower }}/(.*)
+  - host: {{ .AnimalName | ToLower }}.oss.martyn.berlin
+    http:
+      paths:
+      - backend:
+          serviceName: animal
+          servicePort: 80
+        path: /(.*)
   tls:
   - hosts:
     - animals.ing.martyn.berlin
